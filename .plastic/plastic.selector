@@ -1,0 +1,4 @@
+repository "OnFaceToFace@ludaursula@cloud"
+  path "/"
+    smartbranch "/main/mts2"            
+     
