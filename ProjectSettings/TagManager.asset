@@ -6,14 +6,18 @@ TagManager:
   tags:
   - Quality
   - Resolution
+  - Door
+  - Undefined
+  - HomeSweetHome
+  - Game_Level1
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Door
   - Water
   - UI
-  - 
+  - Player
   - 
   - 
   - 

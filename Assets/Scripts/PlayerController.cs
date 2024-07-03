@@ -4,17 +4,24 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speedPlayer;
+    [SerializeField] private float distanceDoor = 1.5f;
+    //private string toScene = "";
     
+    //private Camera mainCamera;
     private Animator anim;
     private SpriteRenderer spriteR;
     private AudioSource stepAudio;
     private string curentAnimTrigger;
+    private Rigidbody2D rb;
+    private RaycastHit2D hit;
+    private string nameNewScene;
     
     private const String SI = "sideIdle";
     private const String SW = "sideWalk";
@@ -22,7 +29,12 @@ public class PlayerController : MonoBehaviour
     private const String UW = "upWalk";
     private const String DI = "downIdle";
     private const String DW = "downWalk";
-    
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+
     void Start()
     {
         spriteR = GetComponentInParent<SpriteRenderer>();
@@ -34,7 +46,11 @@ public class PlayerController : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    {   
+        hit = Physics2D.Raycast(rb.position, Vector2.up, distanceDoor, LayerMask.GetMask("Door"));
+        if (!hit)
+            hit = Physics2D.Raycast(rb.position, Vector2.down, distanceDoor, LayerMask.GetMask("Door"));
+
         var horizontal = Input.GetAxis("Horizontal");
         var vertical = Input.GetAxis("Vertical");
         if (Math.Round(horizontal, 3) == 0 && Math.Round(vertical, 3) == 0)
@@ -88,9 +104,19 @@ public class PlayerController : MonoBehaviour
                     }
                 }
             }
+
             transform.Translate(Vector2.right * (horizontal * speedPlayer * Time.deltaTime));
             transform.Translate(Vector2.up * (vertical * speedPlayer * Time.deltaTime));
         }
         
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (hit)
+            {
+                TeleportToScene teleportScript = hit.transform.GetComponent<TeleportToScene>();
+                if (teleportScript)
+                    teleportScript.ActivateTeleport();
+            }
+        }
     }
 }
