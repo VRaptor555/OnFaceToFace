@@ -10,6 +10,13 @@ TagManager:
   - Undefined
   - HomeSweetHome
   - Game_Level1
+  - Inventory
+  - InventoryIcon
+  - InvBtn
+  - InvName
+  - InvCount
+  - MS_Canvas
+  - Money
   layers:
   - Default
   - TransparentFX

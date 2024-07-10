@@ -3,14 +3,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraFollow2D: MonoBehaviour
+public sealed class CameraFollow2D: MonoBehaviour
 {
+    public static CameraFollow2D Instance { get; private set; }
     private Transform target;
     public float lerpSpeed = 1.0f;
 
     private Vector3 offset;
 
     private Vector3 targetPos;
+
+    private void Awake()
+    {
+        if (Instance)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            DontDestroyOnLoad(gameObject);
+            Instance = this;
+        }
+    }
 
     private void Start()
     {

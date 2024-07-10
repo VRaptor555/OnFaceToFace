@@ -6,6 +6,7 @@ public class PlayerData
     public static Action<float> OnHealthChanged = default;
 
     private static float _healthAmount = 100f;
+    
 
     public static float HealthAmount {
         get => _healthAmount;

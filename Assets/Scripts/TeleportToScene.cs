@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,12 +7,13 @@ public class TeleportToScene : MonoBehaviour
 {
     [SerializeField] private string toScene;
     [SerializeField] private float distanceActivate;
+    [SerializeField] private BaseItemData itemToGoto;
 
     private Rigidbody2D rb;
     private RaycastHit2D hit;
     private GameObject objectToTeleport;
+    private InventoryController _inventoryController;
 
-    private bool isGone = false;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -47,7 +46,46 @@ public class TeleportToScene : MonoBehaviour
     {
         if (objectToTeleport)
         {
-            StartCoroutine(LoadYourAsyncScene());
+            if (itemToGoto is null) // Если нет предмета для прохода
+            {
+                StartCoroutine(LoadYourAsyncScene());
+            }
+            else
+            {
+                // Проверяем, клали предмет для прохода уже?
+                if (PlayerGameObjects.findObject(gameObject.name + "_togo"))
+                {
+                    StartCoroutine(LoadYourAsyncScene());
+                }
+                else
+                {
+                    // Предмет еще не клали, ищем в инвентаре
+                    _inventoryController = GameObject.FindGameObjectWithTag("Inventory").GetComponent<InventoryController>();
+                    bool __found = false;
+                    foreach (var item in _inventoryController.items)
+                    {
+                        var data = item.Data;
+                        if (data)
+                        {
+                            if (data.name == itemToGoto.name) // Нашли предмет в инвентаре
+                            {
+                                __found = true;
+                                PlayerGameObjects.addToList(gameObject.name + "_togo");
+                                _inventoryController.DelItem(item.Data, 1);
+                                StartCoroutine(LoadYourAsyncScene());
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!__found)
+                    {
+                        // Нет предмета для прохода
+                        var messageShow = GameObject.FindGameObjectWithTag("MS_Canvas").GetComponent<MessageShow>();
+                        messageShow.showMessage(itemToGoto.Icon, "Дя прохода необходим предмет: \"" + itemToGoto.name + "\"");
+                    }
+                }
+            }
         }
     }
     private IEnumerator LoadYourAsyncScene()

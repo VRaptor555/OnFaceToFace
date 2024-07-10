@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/HomeSweetHome.unity
     guid: 841bd39d228a3664b8a8395e1154db29
+  - enabled: 1
+    path: Assets/Scenes/CaveScene.unity
+    guid: 0a8289b1f1e12f448a1d7bbc516281a5
   m_configObjects: {}

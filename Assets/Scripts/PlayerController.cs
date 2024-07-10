@@ -1,20 +1,12 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
-using Random = UnityEngine.Random;
 
-public class PlayerController : MonoBehaviour
+public sealed class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance { get; private set; }
     [SerializeField] private float speedPlayer;
     [SerializeField] private float distanceDoor = 1.5f;
-    //private string toScene = "";
     
-    //private Camera mainCamera;
     private Animator anim;
     private SpriteRenderer spriteR;
     private AudioSource stepAudio;
@@ -22,6 +14,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private RaycastHit2D hit;
     private string nameNewScene;
+    private int heath;
+    private HealthBar _healthBar;
     
     private const String SI = "sideIdle";
     private const String SW = "sideWalk";
@@ -32,6 +26,16 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            DontDestroyOnLoad(gameObject);
+            Instance = this;
+        }
+        
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -40,17 +44,22 @@ public class PlayerController : MonoBehaviour
         spriteR = GetComponentInParent<SpriteRenderer>();
         anim = GetComponentInParent<Animator>();
         stepAudio = GetComponentInParent<AudioSource>();
+        _healthBar = GetComponentInChildren<HealthBar>();
         curentAnimTrigger = "sideIdle";
         anim.SetTrigger(curentAnimTrigger);
+        PlayerGameObjects.addMoney(100.0f); // Добавляем денюжку при старте
     }
 
     // Update is called once per frame
     void Update()
     {   
+        // Испускаем 2 луча, вверх и вниз. Если чего нашли в Layer "Door",
+        // значит есть дверь/телепорт в который можно войти
         hit = Physics2D.Raycast(rb.position, Vector2.up, distanceDoor, LayerMask.GetMask("Door"));
         if (!hit)
             hit = Physics2D.Raycast(rb.position, Vector2.down, distanceDoor, LayerMask.GetMask("Door"));
-
+        
+        // Движение по вертикали и горизонтали
         var horizontal = Input.GetAxis("Horizontal");
         var vertical = Input.GetAxis("Vertical");
         if (Math.Round(horizontal, 3) == 0 && Math.Round(vertical, 3) == 0)
@@ -118,5 +127,15 @@ public class PlayerController : MonoBehaviour
                     teleportScript.ActivateTeleport();
             }
         }
+    }
+
+    public float GetHealth()
+    {
+        return HealthBar.currentValue;
+    }
+
+    public void AdjustHealth(float adjust)
+    {
+        HealthBar.AdjustCurrentValue(adjust);
     }
 }
